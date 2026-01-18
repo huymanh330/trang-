@@ -2,83 +2,160 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <title>N T T T</title>
+  <title>Trò chơi nhỏ cho Trang ❤️</title>
   <style>
     body {
       margin: 0;
-      background: black;
-      color: white;
       font-family: Arial, sans-serif;
-      overflow: hidden;
-    }
-    #startBtn {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      padding: 15px 30px;
-      font-size: 20px;
-      cursor: pointer;
-      z-index: 2;
-    }
-    #ghost {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100vw;
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
       height: 100vh;
-      background: url('ghost.png') center center no-repeat;
-      background-size: contain;
-      display: none;
-      z-index: 3;
     }
-    #hint {
-      position: absolute;
-      bottom: 20px;
-      width: 100%;
+    .container {
+      width: 800px;
+      max-width: 95%;
+      background: rgba(255,255,255,0.9);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    h1, h2 {
       text-align: center;
+      color: #ff4d6d;
+    }
+    .question {
+      margin: 15px 0;
       font-size: 18px;
-      opacity: 0.7;
+    }
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 25px;
+      background: #ff4d6d;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px;
+    }
+    button:hover {
+      background: #e63956;
+    }
+    canvas {
+      display: none;
+      background: linear-gradient(#87ceeb, #e0f7fa);
+      border-radius: 15px;
+      margin: 0 auto;
+      display: block;
+    }
+    #loveText {
+      display: none;
+      text-align: center;
+      font-size: 48px;
+      color: #ff4d6d;
+      font-weight: bold;
+      margin-top: 30px;
     }
   </style>
 </head>
 <body>
+  <div class="container">
+    <div id="quiz">
+      <h1>Câu hỏi ức chế dành cho Trang 😆</h1>
+      <div class="question">1. Anh nhắn tin mà Trang seen không rep là vì điều gì?</div>
+      <button onclick="nextQuestion()">Bận xíu</button>
+      <button onclick="nextQuestion()">Giận vu vơ</button>
 
-<button id="startBtn">BẮT ĐẦU CHƠI</button>
-<div id="ghost"></div>
-<div id="hint">Hãy chờ một chút... 😈</div>
+      <div class="question">2. Khi anh nói "Anh không sao" thì nghĩa là?</div>
+      <button onclick="nextQuestion()">Ổn thật</button>
+      <button onclick="nextQuestion()">Không ổn tí nào</button>
 
-<audio id="scream" src="scream.mp3"></audio>
+      <div class="question">3. Trang hỏi "Anh có giận không?" thì đáp án đúng là?</div>
+      <button onclick="nextQuestion()">Không</button>
+      <button onclick="nextQuestion()">Có nhưng vẫn yêu</button>
 
-<script>
-  const startBtn = document.getElementById('startBtn');
-  const ghost = document.getElementById('ghost');
-  const scream = document.getElementById('scream');
+      <div class="question">4. Nếu cãi nhau xong ai nên làm lành trước?</div>
+      <button onclick="startGame()">Anh</button>
+      <button onclick="startGame()">Vẫn là anh</button>
+    </div>
 
-  startBtn.onclick = () => {
-    startBtn.style.display = 'none';
+    <canvas id="game" width="760" height="200"></canvas>
+    <div id="loveText">Anh yêu Em ❤️</div>
+  </div>
 
-    // random thời gian hù (2–6 giây)
-    const delay = Math.random() * 4000 + 2000;
+  <script>
+    let canvas = document.getElementById('game');
+    let ctx = canvas.getContext('2d');
+    let player = { x: 50, y: 150, w: 20, h: 20, vy: 0, jump: false };
+    let obstacles = [];
+    let gravity = 0.8;
+    let speed = 4;
+    let gameRunning = false;
 
-    setTimeout(() => {
-      ghost.style.display = 'block';
-      scream.volume = 1.0;
-      scream.play();
+    function nextQuestion() {
+      // chỉ để bấm cho vui 😄
+    }
 
-      // rung màn hình
-      let shake = 0;
-      const interval = setInterval(() => {
-        document.body.style.transform = `translate(${Math.random()*20-10}px, ${Math.random()*20-10}px)`;
-        shake++;
-        if (shake > 15) {
-          clearInterval(interval);
-          document.body.style.transform = 'translate(0,0)';
+    function startGame() {
+      document.getElementById('quiz').style.display = 'none';
+      canvas.style.display = 'block';
+      gameRunning = true;
+      obstacles = [{ x: 400, w: 20 }, { x: 600, w: 20 }];
+      requestAnimationFrame(loop);
+    }
+
+    document.addEventListener('keydown', e => {
+      if (e.code === 'Space' && !player.jump) {
+        player.vy = -12;
+        player.jump = true;
+      }
+    });
+
+    function loop() {
+      if (!gameRunning) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // player
+      player.vy += gravity;
+      player.y += player.vy;
+      if (player.y >= 150) {
+        player.y = 150;
+        player.vy = 0;
+        player.jump = false;
+      }
+      ctx.fillStyle = '#ff4d6d';
+      ctx.fillRect(player.x, player.y, player.w, player.h);
+
+      // obstacles
+      ctx.fillStyle = '#333';
+      for (let obs of obstacles) {
+        obs.x -= speed;
+        ctx.fillRect(obs.x, 150, obs.w, 20);
+        if (obs.x < -20) obs.x = canvas.width + Math.random() * 200;
+
+        // collision
+        if (
+          player.x < obs.x + obs.w &&
+          player.x + player.w > obs.x &&
+          player.y + player.h > 150
+        ) {
+          gameRunning = false;
+          alert('Thua rồi 😝 chơi lại nha');
+          location.reload();
         }
-      }, 50);
-    }, delay);
-  };
-</script>
+      }
 
+      // finish
+      if (player.x > canvas.width - 60) {
+        gameRunning = false;
+        canvas.style.display = 'none';
+        document.getElementById('loveText').style.display = 'block';
+      }
+
+      player.x += 1;
+      requestAnimationFrame(loop);
+    }
+  </script>
 </body>
 </html>

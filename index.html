@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>N T T T</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+    #startBtn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 15px 30px;
+      font-size: 20px;
+      cursor: pointer;
+      z-index: 2;
+    }
+    #ghost {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: url('ghost.png') center center no-repeat;
+      background-size: contain;
+      display: none;
+      z-index: 3;
+    }
+    #hint {
+      position: absolute;
+      bottom: 20px;
+      width: 100%;
+      text-align: center;
+      font-size: 18px;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+
+<button id="startBtn">BẮT ĐẦU CHƠI</button>
+<div id="ghost"></div>
+<div id="hint">Hãy chờ một chút... 😈</div>
+
+<audio id="scream" src="scream.mp3"></audio>
+
+<script>
+  const startBtn = document.getElementById('startBtn');
+  const ghost = document.getElementById('ghost');
+  const scream = document.getElementById('scream');
+
+  startBtn.onclick = () => {
+    startBtn.style.display = 'none';
+
+    // random thời gian hù (2–6 giây)
+    const delay = Math.random() * 4000 + 2000;
+
+    setTimeout(() => {
+      ghost.style.display = 'block';
+      scream.volume = 1.0;
+      scream.play();
+
+      // rung màn hình
+      let shake = 0;
+      const interval = setInterval(() => {
+        document.body.style.transform = `translate(${Math.random()*20-10}px, ${Math.random()*20-10}px)`;
+        shake++;
+        if (shake > 15) {
+          clearInterval(interval);
+          document.body.style.transform = 'translate(0,0)';
+        }
+      }, 50);
+    }, delay);
+  };
+</script>
+
+</body>
+</html>

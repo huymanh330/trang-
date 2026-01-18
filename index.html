@@ -16,7 +16,7 @@
     .container {
       width: 800px;
       max-width: 95%;
-      background: rgba(255,255,255,0.9);
+      background: rgba(255,255,255,0.95);
       border-radius: 20px;
       padding: 20px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
@@ -26,18 +26,19 @@
       color: #ff4d6d;
     }
     .question {
-      margin: 15px 0;
-      font-size: 18px;
+      font-size: 20px;
+      margin-bottom: 20px;
+      text-align: center;
     }
     button {
-      padding: 10px 20px;
+      padding: 10px 22px;
       border: none;
       border-radius: 25px;
       background: #ff4d6d;
       color: white;
       font-size: 16px;
       cursor: pointer;
-      margin: 10px;
+      margin: 8px;
     }
     button:hover {
       background: #e63956;
@@ -47,7 +48,6 @@
       background: linear-gradient(#87ceeb, #e0f7fa);
       border-radius: 15px;
       margin: 0 auto;
-      display: block;
     }
     #loveText {
       display: none;
@@ -57,58 +57,110 @@
       font-weight: bold;
       margin-top: 30px;
     }
+    #login {
+      text-align: center;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <div id="quiz">
-      <h1>Câu hỏi ức chế dành cho Trang 😆</h1>
-      <div class="question">1. Anh nhắn tin mà Trang seen không rep là vì điều gì?</div>
-      <button onclick="nextQuestion()">Bận xíu</button>
-      <button onclick="nextQuestion()">Giận vu vơ</button>
 
-      <div class="question">2. Khi anh nói "Anh không sao" thì nghĩa là?</div>
-      <button onclick="nextQuestion()">Ổn thật</button>
-      <button onclick="nextQuestion()">Không ổn tí nào</button>
-
-      <div class="question">3. Trang hỏi "Anh có giận không?" thì đáp án đúng là?</div>
-      <button onclick="nextQuestion()">Không</button>
-      <button onclick="nextQuestion()">Có nhưng vẫn yêu</button>
-
-      <div class="question">4. Nếu cãi nhau xong ai nên làm lành trước?</div>
-      <button onclick="startGame()">Anh</button>
-      <button onclick="startGame()">Vẫn là anh</button>
+    <!-- LOGIN -->
+    <div id="login">
+      <h1>Nhập mật khẩu đi Trang 😝</h1>
+      <input type="password" id="password" placeholder="Nhập mật khẩu" />
+      <br><br>
+      <button onclick="checkPass()">Vào game</button>
     </div>
 
+    <!-- QUIZ -->
+    <div id="quiz" style="display:none;">
+      <h1>Câu hỏi ức chế cho Trang 😆</h1>
+      <div class="question" id="question"></div>
+      <div id="answers"></div>
+    </div>
+
+    <!-- GAME -->
     <canvas id="game" width="760" height="200"></canvas>
+
     <div id="loveText">Anh yêu Em ❤️</div>
   </div>
 
   <script>
+    // LOGIN
+    function checkPass() {
+      const pass = document.getElementById('password').value;
+      if (pass === 'NTTT') {
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('quiz').style.display = 'block';
+        showQuestion();
+      } else {
+        alert('Sai mật khẩu rồi 😝');
+      }
+    }
+
+    // QUIZ DATA
+    const questions = [
+      {
+        q: '1. Anh nhắn tin mà Trang seen không rep là vì sao?',
+        a: ['Bận xíu', 'Cố tình cho anh chờ']
+      },
+      {
+        q: '2. Khi anh nói "Anh không sao" thì nghĩa là?',
+        a: ['Ổn thật', 'Không ổn tí nào']
+      },
+      {
+        q: '3. Trang hỏi "Anh có giận không?" thì đáp án đúng là?',
+        a: ['Không', 'Có nhưng vẫn yêu']
+      },
+      {
+        q: '4. Cãi nhau xong ai phải làm lành trước?',
+        a: ['Anh', 'Vẫn là anh']
+      }
+    ];
+
+    let qIndex = 0;
+
+    function showQuestion() {
+      if (qIndex >= questions.length) {
+        startGame();
+        return;
+      }
+      document.getElementById('question').innerText = questions[qIndex].q;
+      const ansDiv = document.getElementById('answers');
+      ansDiv.innerHTML = '';
+      questions[qIndex].a.forEach(() => {
+        const btn = document.createElement('button');
+        btn.innerText = 'Chọn';
+        btn.onclick = () => {
+          qIndex++;
+          showQuestion();
+        };
+        ansDiv.appendChild(btn);
+      });
+    }
+
+    // GAME
     let canvas = document.getElementById('game');
     let ctx = canvas.getContext('2d');
-    let player = { x: 50, y: 150, w: 20, h: 20, vy: 0, jump: false };
+    let player = { x: 50, y: 150, w: 20, h: 20, vy: 0, jumpCount: 0 };
     let obstacles = [];
     let gravity = 0.8;
     let speed = 4;
     let gameRunning = false;
 
-    function nextQuestion() {
-      // chỉ để bấm cho vui 😄
-    }
-
     function startGame() {
       document.getElementById('quiz').style.display = 'none';
       canvas.style.display = 'block';
-      gameRunning = true;
       obstacles = [{ x: 400, w: 20 }, { x: 600, w: 20 }];
+      gameRunning = true;
       requestAnimationFrame(loop);
     }
 
     document.addEventListener('keydown', e => {
-      if (e.code === 'Space' && !player.jump) {
+      if (e.code === 'Space' && player.jumpCount < 2) {
         player.vy = -12;
-        player.jump = true;
+        player.jumpCount++;
       }
     });
 
@@ -116,37 +168,32 @@
       if (!gameRunning) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // player
       player.vy += gravity;
       player.y += player.vy;
       if (player.y >= 150) {
         player.y = 150;
         player.vy = 0;
-        player.jump = false;
+        player.jumpCount = 0;
       }
       ctx.fillStyle = '#ff4d6d';
       ctx.fillRect(player.x, player.y, player.w, player.h);
 
-      // obstacles
       ctx.fillStyle = '#333';
-      for (let obs of obstacles) {
+      obstacles.forEach(obs => {
         obs.x -= speed;
         ctx.fillRect(obs.x, 150, obs.w, 20);
         if (obs.x < -20) obs.x = canvas.width + Math.random() * 200;
 
-        // collision
         if (
           player.x < obs.x + obs.w &&
           player.x + player.w > obs.x &&
           player.y + player.h > 150
         ) {
-          gameRunning = false;
           alert('Thua rồi 😝 chơi lại nha');
           location.reload();
         }
-      }
+      });
 
-      // finish
       if (player.x > canvas.width - 60) {
         gameRunning = false;
         canvas.style.display = 'none';

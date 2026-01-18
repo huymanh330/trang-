@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8" />
-  <title>Trò chơi nhỏ cho Trang ❤️</title>
+  <title>Câu hỏi cho Trang ❤️</title>
   <style>
     body {
       margin: 0;
@@ -14,24 +14,24 @@
       height: 100vh;
     }
     .container {
-      width: 800px;
+      width: 700px;
       max-width: 95%;
       background: rgba(255,255,255,0.95);
       border-radius: 20px;
-      padding: 20px;
+      padding: 25px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     }
-    h1, h2 {
+    h1 {
       text-align: center;
       color: #ff4d6d;
     }
     .question {
-      font-size: 20px;
-      margin-bottom: 20px;
+      font-size: 22px;
+      margin: 25px 0;
       text-align: center;
     }
     button {
-      padding: 10px 22px;
+      padding: 12px 24px;
       border: none;
       border-radius: 25px;
       background: #ff4d6d;
@@ -43,22 +43,16 @@
     button:hover {
       background: #e63956;
     }
-    canvas {
-      display: none;
-      background: linear-gradient(#87ceeb, #e0f7fa);
-      border-radius: 15px;
-      margin: 0 auto;
+    #login {
+      text-align: center;
     }
     #loveText {
       display: none;
       text-align: center;
-      font-size: 48px;
+      font-size: 42px;
       color: #ff4d6d;
       font-weight: bold;
       margin-top: 30px;
-    }
-    #login {
-      text-align: center;
     }
   </style>
 </head>
@@ -70,7 +64,7 @@
       <h1>Nhập mật khẩu đi Trang 😝</h1>
       <input type="password" id="password" placeholder="Nhập mật khẩu" />
       <br><br>
-      <button onclick="checkPass()">Vào game</button>
+      <button onclick="checkPass()">Vào</button>
     </div>
 
     <!-- QUIZ -->
@@ -80,14 +74,12 @@
       <div id="answers"></div>
     </div>
 
-    <!-- GAME -->
-    <canvas id="game" width="760" height="200"></canvas>
-
+    <!-- END -->
     <div id="loveText">Anh yêu Em ❤️</div>
+
   </div>
 
   <script>
-    // LOGIN
     function checkPass() {
       const pass = document.getElementById('password').value;
       if (pass === 'NTTT') {
@@ -99,7 +91,6 @@
       }
     }
 
-    // QUIZ DATA
     const questions = [
       {
         q: '1. Anh nhắn tin mà Trang seen không rep là vì sao?',
@@ -123,85 +114,24 @@
 
     function showQuestion() {
       if (qIndex >= questions.length) {
-        startGame();
+        document.getElementById('quiz').style.display = 'none';
+        document.getElementById('loveText').style.display = 'block';
         return;
       }
+
       document.getElementById('question').innerText = questions[qIndex].q;
       const ansDiv = document.getElementById('answers');
       ansDiv.innerHTML = '';
-      questions[qIndex].a.forEach(() => {
+
+      questions[qIndex].a.forEach(text => {
         const btn = document.createElement('button');
-        btn.innerText = 'Chọn';
+        btn.innerText = text;
         btn.onclick = () => {
           qIndex++;
           showQuestion();
         };
         ansDiv.appendChild(btn);
       });
-    }
-
-    // GAME
-    let canvas = document.getElementById('game');
-    let ctx = canvas.getContext('2d');
-    let player = { x: 50, y: 150, w: 20, h: 20, vy: 0, jumpCount: 0 };
-    let obstacles = [];
-    let gravity = 0.8;
-    let speed = 4;
-    let gameRunning = false;
-
-    function startGame() {
-      document.getElementById('quiz').style.display = 'none';
-      canvas.style.display = 'block';
-      obstacles = [{ x: 400, w: 20 }, { x: 600, w: 20 }];
-      gameRunning = true;
-      requestAnimationFrame(loop);
-    }
-
-    document.addEventListener('keydown', e => {
-      if (e.code === 'Space' && player.jumpCount < 2) {
-        player.vy = -12;
-        player.jumpCount++;
-      }
-    });
-
-    function loop() {
-      if (!gameRunning) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      player.vy += gravity;
-      player.y += player.vy;
-      if (player.y >= 150) {
-        player.y = 150;
-        player.vy = 0;
-        player.jumpCount = 0;
-      }
-      ctx.fillStyle = '#ff4d6d';
-      ctx.fillRect(player.x, player.y, player.w, player.h);
-
-      ctx.fillStyle = '#333';
-      obstacles.forEach(obs => {
-        obs.x -= speed;
-        ctx.fillRect(obs.x, 150, obs.w, 20);
-        if (obs.x < -20) obs.x = canvas.width + Math.random() * 200;
-
-        if (
-          player.x < obs.x + obs.w &&
-          player.x + player.w > obs.x &&
-          player.y + player.h > 150
-        ) {
-          alert('Thua rồi 😝 chơi lại nha');
-          location.reload();
-        }
-      });
-
-      if (player.x > canvas.width - 60) {
-        gameRunning = false;
-        canvas.style.display = 'none';
-        document.getElementById('loveText').style.display = 'block';
-      }
-
-      player.x += 1;
-      requestAnimationFrame(loop);
     }
   </script>
 </body>
